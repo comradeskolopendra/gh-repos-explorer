@@ -25,13 +25,24 @@ function renderRepos() {
     repoWrapper.classList.add("repo__wrapper")
 
     items.map((element, _) => {
+        const link = document.createElement("a");
+        link.classList.add("repo__link");
+        link.href = element.html_url;
+        link.textContent = element.name;
+
+        const avatar = document.createElement("img");
+        avatar.src = element.owner.avatar_url;
+        avatar.classList.add("avatar");
+
         const repoItem = document.createElement("div");
         repoItem.classList.add("repo__item");
-        repoItem.textContent = element.name;
+        repoItem.appendChild(link);
+        repoItem.appendChild(avatar);
         repoWrapper.appendChild(repoItem)
     });
 
-    resultView.appendChild(repoWrapper)
+    resultView.appendChild(repoWrapper);
+    console.log(items)
 }
 
 window.addEventListener("DOMContentLoaded", () => {
