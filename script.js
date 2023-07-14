@@ -4,6 +4,9 @@ import {
   collection,
   getDocs,
   addDoc,
+  deleteDoc,
+  getDoc,
+  doc,
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -21,11 +24,40 @@ const db = getFirestore(firebaseApp);
 
 const citiesRef = collection(db, "cities");
 const docsSnap = await getDocs(citiesRef);
-docsSnap.forEach((doc) => console.log(doc.data()));
-const mockData = { country: "Kazakhstan", name: "Almaty", province: "Almaty" };
-addDoc(citiesRef, mockData)
-  .then((docRef) => console.log(docRef.id))
-  .catch((err) => console.log(err));
+docsSnap.forEach((element) => console.log(element.data()));
+// const mockData = { country: "Kazakhstan", name: "Almaty", province: "Almaty" };
+// addDoc(citiesRef, mockData)
+//   .then((docRef) => console.log(docRef.id))
+//   .catch((err) => console.log(err));
+
+docsSnap.forEach((doc) => {
+  deleteItem(doc.id);
+});
+
+async function deleteItem(id) {
+  const docRef = doc(db, "cities", id);
+  const docSnap = await getDoc(docRef);
+  const docData = docSnap.data();
+  return deleteDoc(docData)
+    .then(() => console.log("succes delete"))
+    .catch((err) => console.log(err));
+  //   docRef.forEach((elem) =>
+  //     deleteDoc(elem.data())
+  //       .then(() => console.log("deleted"))
+  //       .catch((err) => console.log(err))
+  //   );
+  //   console.log(docRef);
+  //   docRef.forEach((element) =>
+  //     // deleteDoc(element.data()).then(() => console.log("successfully removed")).catch(err => console.log(err))
+  //     deleteDoc(docRef)
+  //       .then(() => {
+  //         console.log("Entire Document has been deleted successfully.");
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //       })
+  //   );
+}
 
 async function getInfo(e) {
   e.preventDefault();
