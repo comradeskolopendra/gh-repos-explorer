@@ -5,8 +5,8 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
-  getDoc,
   doc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -20,47 +20,55 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
+// Database
 const db = getFirestore(firebaseApp);
-
 const citiesRef = collection(db, "cities");
-const docsSnap = await getDocs(citiesRef);
-docsSnap.forEach((element) => console.log(element.data()));
-// const mockData = { country: "Kazakhstan", name: "Almaty", province: "Almaty" };
-// addDoc(citiesRef, mockData)
+
+// Показать данные
+// const docsSnap = await getDocs(citiesRef);
+// docsSnap.forEach((element) => console.log(element.data()));
+
+
+// Добавление
+// addDoc(citiesRef, { country: "Kazakhstan", name: "Almaty", province: "Almaty" })
 //   .then((docRef) => console.log(docRef.id))
 //   .catch((err) => console.log(err));
 
-docsSnap.forEach((doc) => {
-  deleteItem(doc.id);
-});
 
-async function deleteItem(id) {
-  const docRef = doc(db, "cities", id);
-  const docSnap = await getDoc(docRef);
-  const docData = docSnap.data();
-  return deleteDoc(docData)
-    .then(() => console.log("succes delete"))
-    .catch((err) => console.log(err));
-  //   docRef.forEach((elem) =>
-  //     deleteDoc(elem.data())
-  //       .then(() => console.log("deleted"))
-  //       .catch((err) => console.log(err))
-  //   );
-  //   console.log(docRef);
-  //   docRef.forEach((element) =>
-  //     // deleteDoc(element.data()).then(() => console.log("successfully removed")).catch(err => console.log(err))
-  //     deleteDoc(docRef)
-  //       .then(() => {
-  //         console.log("Entire Document has been deleted successfully.");
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //       })
-  //   );
-}
+// Удалить данные
+// await deleteDoc(doc(db, "cities", id));
+
+// TODO: 
+//    1. Delete all users;
+//    2. Refactor deleteDoc function to snap ref without doc func; - done
+//    3. Remove error with hot reload after get collection;
+
+const ghUsersRef = collection(db, "gh-users");
+const ghUsersSnap = await getDocs(ghUsersRef);
+
+// async function deleteUser(collection, id) {
+//   return await deleteDoc(doc(db, collection, id));
+// }
+
+// function addUser(ref, obj) {
+//   return addDoc(ref, obj);
+// }
+
+// onSnapshot(ghUsersRef, () => {
+//   event.preventDefault();
+// })
 
 async function getInfo(e) {
+
+  console.log("start");
   e.preventDefault();
+  
+  const userObj = {
+    nickname: null,
+    url_gh: null,
+    avatar_url: null,
+    repos: null
+  }
 
   const [input, _] = e.currentTarget.elements;
   const response = await fetch(
@@ -73,6 +81,10 @@ async function getInfo(e) {
 
   const data = await response.json();
   const dataString = JSON.stringify(data);
+  
+  for (let key of Object.keys(userObj)) {
+    // userObj[key] = 
+  }
 
   localStorage.setItem("repos", dataString);
   renderRepos();
