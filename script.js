@@ -6,7 +6,6 @@ import {
   addDoc,
   deleteDoc,
   doc,
-  onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -22,84 +21,76 @@ const firebaseApp = initializeApp(firebaseConfig);
 
 // Database
 const db = getFirestore(firebaseApp);
-const citiesRef = collection(db, "cities");
 
-// Показать данные
-// const docsSnap = await getDocs(citiesRef);
-// docsSnap.forEach((element) => console.log(element.data()));
+let ghUsersRef;
 
+async function deleteUser(collection, id) {
+  return await deleteDoc(doc(db, collection, id));
+}
 
-// Добавление
-// addDoc(citiesRef, { country: "Kazakhstan", name: "Almaty", province: "Almaty" })
-//   .then((docRef) => console.log(docRef.id))
-//   .catch((err) => console.log(err));
-
-
-// Удалить данные
-// await deleteDoc(doc(db, "cities", id));
-
-// TODO: 
-//    1. Delete all users;
-//    2. Refactor deleteDoc function to snap ref without doc func; - done
-//    3. Remove error with hot reload after get collection;
-
-const ghUsersRef = collection(db, "gh-users");
-const ghUsersSnap = await getDocs(ghUsersRef);
-
-// async function deleteUser(collection, id) {
-//   return await deleteDoc(doc(db, collection, id));
-// }
-
-// function addUser(ref, obj) {
-//   return addDoc(ref, obj);
-// }
-
-// onSnapshot(ghUsersRef, () => {
-//   event.preventDefault();
-// })
+async function addUser(ref, obj) {
+  return addDoc(ref, obj);
+}
 
 async function getInfo(e) {
-
-  console.log("start");
   e.preventDefault();
-  
+
   const userObj = {
     nickname: null,
     url_gh: null,
+    repos: null,
     avatar_url: null,
-    repos: null
-  }
+  };
 
   const [input, _] = e.currentTarget.elements;
-  const response = await fetch(
-    `https://api.github.com/users/${input.value}/repos`
-  );
 
-  if (!response.ok) {
-    throw new Error("Что-то пошло не так");
-  }
+  await fetch(`https://api.github.com/users/${input.value}/repos`)
+    .then((resp) => resp.json())
+    .then((data) => {
+      userObj.repos = data;
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
 
-  const data = await response.json();
-  const dataString = JSON.stringify(data);
-  
-  for (let key of Object.keys(userObj)) {
-    // userObj[key] = 
-  }
+  await fetch(`https://api.github.com/users/${input.value}`)
+    .then((resp) => resp.json())
+    .then((data) => {
+      userObj.nickname = data.login;
+      userObj.avatar_url = data.avatar_url;
+      userObj.url_gh = `https://github.com/${input.value}`;
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
 
-  localStorage.setItem("repos", dataString);
-  renderRepos();
+  addUser(ghUsersRef, userObj)
+  changeUsersHistory();
+
+  renderRepos(userObj.repos);
 }
 
-function renderRepos() {
+async function changeUsersHistory() {
+  const allUsers = await getDocs(ghUsersRef);
+  const historyView = document.querySelector("#history");
+  historyView.innerHTML = "";
+  allUsers.forEach((element) => {
+    historyView.innerHTML += `<a href="${element.data().url_gh}">${
+      element.data().nickname
+    }</a>`;
+  });
+}
+
+async function renderRepos(items) {
   const resultView = document.querySelector("#resultView");
-  const items = JSON.parse(localStorage.getItem("repos"));
+  console.log(items);
 
   resultView.innerHTML = "";
 
   const repoWrapper = document.createElement("div");
   repoWrapper.classList.add("repo__wrapper");
 
-  items.map((element, _) => {
+  items.forEach((element, _) => {
     const template = `
             <div class="repo__item">
                 <a href="${element.html_url}" class="repo__link" target="_blank">${element.name}</a>
@@ -111,10 +102,16 @@ function renderRepos() {
   });
 
   resultView.appendChild(repoWrapper);
-  console.log(items);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async (event) => {
+  initFirebaseCollection(event);
+
   const form = document.querySelector("form");
   form.addEventListener("submit", getInfo);
 });
+
+async function initFirebaseCollection(e) {
+  e.preventDefault();
+  ghUsersRef = collection(db, "gh-users");
+}

@@ -4,20 +4,24 @@ body {
 
 main {
     display: grid;
-    grid-template-rows: 150px 500px;
+    max-width: 1240px;
+    margin: 0 auto;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
     justify-content: center;
-    gap: 35px;
     height: 100vh;
 }
 
 .searchView,
-.resultView {
-    width: 500px;
-    height: 100%;
+.resultView,
+.historyView {
+    width: 90%;
+    height: 500px;
+    max-height: 250px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    margin: 15px;
     padding: 15px 5px;
     border: 1px solid grey;
     border-radius: 15px;
@@ -26,8 +30,14 @@ main {
     scrollbar-width: none;
 }
 
+.historyView {
+    flex-direction: column;
+    align-items: center;
+}
+
 .searchView::-webkit-scrollbar,
-.resultView::-webkit-scrollbar {
+.resultView::-webkit-scrollbar,
+.historyView::-webkit-scrollbar {
     display: none;
     opacity: 0;
 }
