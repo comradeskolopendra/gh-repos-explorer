@@ -47,10 +47,14 @@ async function getInfo(e) {
   await fetch(`https://api.github.com/users/${input.value}/repos`)
     .then((resp) => resp.json())
     .then((data) => {
-      userObj.repos = data;
+      if (!data.length) {
+        userObj.repos = "Нет проектов или публичных репозиториев";
+      } else {
+        userObj.repos = data;
+      }
     })
     .catch((err) => {
-      throw new Error(err);
+      userObj.repos = err;
     });
 
   await fetch(`https://api.github.com/users/${input.value}`)
@@ -64,42 +68,65 @@ async function getInfo(e) {
       throw new Error(err);
     });
 
-  addUser(ghUsersRef, userObj)
-  changeUsersHistory();
+  if (typeof userObj.repos !== "string") {
+    addUser(ghUsersRef, userObj);
+  }
+
+  usersHistory();
 
   renderRepos(userObj.repos);
 }
 
-async function changeUsersHistory() {
+async function usersHistory() {
   const allUsers = await getDocs(ghUsersRef);
   const historyView = document.querySelector("#history");
   historyView.innerHTML = "";
-  allUsers.forEach((element) => {
-    historyView.innerHTML += `<a href="${element.data().url_gh}">${
-      element.data().nickname
-    }</a>`;
-  });
+
+  const uniqVals = getUniqObject(allUsers);
+
+  for (let [_, value] of Object.entries(uniqVals)) {
+    historyView.innerHTML += `<a href="${value.url_gh}" class="user__link">${value.nickname}</a>`;
+  }
 }
 
-async function renderRepos(items) {
+function getUniqObject(data) {
+  const uniqData = {};
+
+  data.forEach((element) => {
+    const nick = element.data().nickname;
+    const data = { ...element.data() };
+    uniqData[nick] = data;
+  });
+
+  return uniqData;
+}
+
+async function renderRepos(repos) {
   const resultView = document.querySelector("#resultView");
-  console.log(items);
 
   resultView.innerHTML = "";
 
   const repoWrapper = document.createElement("div");
   repoWrapper.classList.add("repo__wrapper");
 
-  items.forEach((element, _) => {
-    const template = `
+  if (typeof repos === "string") {
+    repoWrapper.innerHTML += `
+      <h3 class="empty_result">
+        ${repos}
+      </h3>
+    `;
+  } else {
+    repos.forEach((element, _) => {
+      const template = `
             <div class="repo__item">
                 <a href="${element.html_url}" class="repo__link" target="_blank">${element.name}</a>
                 <img src="${element.owner.avatar_url}" class="avatar"/>
             </div>
         `;
 
-    repoWrapper.innerHTML += template;
-  });
+      repoWrapper.innerHTML += template;
+    });
+  }
 
   resultView.appendChild(repoWrapper);
 }
@@ -109,6 +136,8 @@ window.addEventListener("DOMContentLoaded", async (event) => {
 
   const form = document.querySelector("form");
   form.addEventListener("submit", getInfo);
+
+  usersHistory();
 });
 
 async function initFirebaseCollection(e) {

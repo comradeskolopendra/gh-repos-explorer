@@ -105,3 +105,18 @@ button {
     text-decoration: none;
     color: black;
 }
+
+.user__link {
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+    padding: 5px 15px;
+    margin: 5px 0;
+    width: 200px;
+    border: 1px solid gray;
+}
+
+.empty_result {
+    text-align: center;
+    font-size: 36px;
+}
