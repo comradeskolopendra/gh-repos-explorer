@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    height: 100vh;
 }
 
 main {
@@ -9,7 +10,7 @@ main {
     grid-template-columns: 1fr 1fr;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
 }
 
 .searchView,
@@ -119,4 +120,16 @@ button {
 .empty_result {
     text-align: center;
     font-size: 36px;
+}
+
+footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+    font-size: 24px;
+    background: rgb(200, 200, 200);
+    position: fixed;
+    bottom: 0;
 }
