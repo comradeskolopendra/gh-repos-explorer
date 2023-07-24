@@ -85,7 +85,7 @@ async function usersHistory() {
   const uniqVals = getUniqObject(allUsers);
 
   for (let [_, value] of Object.entries(uniqVals)) {
-    historyView.innerHTML += `<a href="${value.url_gh}" class="user__link">${value.nickname}</a>`;
+    historyView.innerHTML += `<a href="${value.url_gh}" target="_blank" class="user__link">${value.nickname}</a>`;
   }
 }
 
