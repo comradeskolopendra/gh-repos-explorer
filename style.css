@@ -64,15 +64,15 @@ button {
 
 .search__button {
     background: unset;
-    border: 1px solid teal;
-    color: teal;
+    border: 1px solid grey;
+    color: grey;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
 }
 
 .search__button:hover {
-    background: teal;
+    background: grey;
     transition: all 0.3s ease-in-out;
     color: white;
 }
